@@ -153,7 +153,7 @@ Platform = Box or Wall
 =======
 SOUNDS
 =======
-Player Move UP 42743705
+(Player Move UP 42743705)
 EndLevel 4271703
 (StartLevel 92923508)
 
@@ -176,7 +176,7 @@ RULES
 ======
 
 (Delete this line to turn on silly jumping!)
-[UP Player] -> [Player]
+([UP Player] -> [Player])
 
 
 
@@ -227,27 +227,34 @@ DOWN [ Wall | HORIZONTAL Player ] -> [ Wall | HORIZONTAL Player CantClimbMarker]
 DOWN [ Wall | | HORIZONTAL Player LiftedMarker ] -> [ Wall | | HORIZONTAL Player LiftedMarker CantClimbMarker]
 
 (handle climbing movements to the left while lifting)
-RIGHT [ Platform | LEFT Player FaceMarker LiftedMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceLeftMarker LiftedMarker | ]
+RIGHT [ Platform | UP Player FaceLeftMarker LiftedMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceLeftMarker LiftedMarker | ]
+DOWN [ Platform | Platform TryClimbMarker FaceLeftMarker LiftedMarker ] -> cancel
 DOWN [ NO Platform | Platform TryClimbMarker FaceLeftMarker LiftedMarker ] -> [ Player FaceLeftMarker LiftedMarker | Platform ]
 RIGHT [ Platform TryClimbMarker FaceLeftMarker LiftedMarker | NO Platform ] -> [ Platform | Player FaceLeftMarker LiftedMarker ]
 
 (handle climbing movements to the left while not lifting)
-RIGHT [ Platform | LEFT Player FaceMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceLeftMarker | ]
+RIGHT [ Platform | UP Player FaceLeftMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceLeftMarker | ]
+DOWN [ Platform | Platform TryClimbMarker FaceLeftMarker ] -> cancel
 DOWN [ NO Platform | Platform TryClimbMarker FaceLeftMarker ] -> [ Player FaceLeftMarker | Platform ]
 RIGHT [ Platform TryClimbMarker FaceLeftMarker | NO Platform ] -> [ Platform | Player FaceLeftMarker ]
 
 (handle climbing movements to the right while lifting)
-LEFT [ Platform | RIGHT Player FaceMarker LiftedMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceRightMarker LiftedMarker | ]
+LEFT [ Platform | UP Player FaceRightMarker LiftedMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceRightMarker LiftedMarker | ]
+DOWN [ Platform | Platform TryClimbMarker FaceRightMarker LiftedMarker ] -> cancel
 DOWN [ NO Platform | Platform TryClimbMarker FaceRightMarker LiftedMarker ] -> [ Player FaceRightMarker LiftedMarker | Platform ]
 LEFT [ Platform TryClimbMarker FaceRightMarker LiftedMarker | NO Platform ] -> [ Platform | Player FaceRightMarker LiftedMarker ]
 
 (handle climbing movements to the right while not lifting)
-LEFT [ Platform | RIGHT Player FaceMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceRightMarker | ]
+LEFT [ Platform | UP Player FaceRightMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceRightMarker | ]
+DOWN [ Platform | Platform TryClimbMarker FaceRightMarker ] -> cancel
 DOWN [ NO Platform | Platform TryClimbMarker FaceRightMarker ] -> [ Player FaceRightMarker | Platform ]
 LEFT [ Platform TryClimbMarker FaceRightMarker | NO Platform ] -> [ Platform | Player FaceRightMarker ]
 
 (destroys the marker that said the player couldn't climb)
 [ CantClimbMarker ] -> [ NO CantClimbMarker ]
+
+(block all other attempts to move UP)
+[UP Player] -> cancel
 
 
 
@@ -264,9 +271,9 @@ endloop
 late [ FallingMarker ] -> [ NO FallingMarker ]
 
 (handle jumping gravity)
-DOWN [ UP Player | Platform ] -> again
+(DOWN [ UP Player | Platform ] -> again
 DOWN [ Player FaceMarker LiftedMarker | NO Platform ] -> [ NO Player | Player FaceMarker LiftedMarker ]
-DOWN [ Player FaceMarker | NO Platform ] -> [ NO Player | Player FaceMarker ]
+DOWN [ Player FaceMarker | NO Platform ] -> [ NO Player | Player FaceMarker ])
 
 
 
