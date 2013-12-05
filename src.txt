@@ -1,0 +1,505 @@
+title Block Dude
+author Hayden Schiff
+homepage oxguy3.github.io
+
+again_interval 0.1
+
+
+
+========
+OBJECTS
+========
+Background
+LIGHTBLUE
+
+
+Exit
+BROWN BLACK
+11111
+10001
+10011
+10001
+11111
+
+
+Wall
+LIGHTGRAY RED
+11101
+00000
+11110
+00000
+11101
+
+Player
+DARKBLUE
+.000.
+.000.
+00000
+.000.
+.0.0.
+
+Box
+WHITE BLACK
+11111
+10001
+10001
+10001
+11111
+
+
+TryClimbMarker
+WHITE
+0...0
+.0.0.
+..0..
+.0.0.
+0...0
+
+CantClimbMarker
+WHITE
+0...0
+.0.0.
+..0..
+.0.0.
+0...0
+
+
+
+LiftCheckMarker
+WHITE
+0...0
+.0.0.
+..0..
+.0.0.
+0...0
+
+LiftedMarker
+RED
+.....
+.....
+.....
+.....
+.....
+
+TryDropMarker
+WHITE
+0...0
+.0.0.
+..0..
+.0.0.
+0...0
+
+FinishDropMarker
+WHITE
+0...0
+.0.0.
+..0..
+.0.0.
+0...0
+
+
+FallingMarker
+WHITE
+0...0
+.0.0.
+..0..
+.0.0.
+0...0
+
+
+FaceLeftMarker
+WHITE
+.....
+.0...
+.....
+.....
+.....
+
+FaceRightMarker
+WHITE
+.....
+...0.
+.....
+.....
+.....
+
+FaceErrorMarker
+WHITE
+.....
+.000.
+.....
+.....
+.....
+
+
+
+=======
+LEGEND
+=======
+. = Background
+# = Wall
+(P = Player)
+< = Player and FaceLeftMarker
+> = Player and FaceRightMarker
+E = Exit
+O = Box
+
+FaceMarker = FaceLeftMarker or FaceRightMarker or FaceErrorMarker
+GravityObject = Player or Box
+Platform = Box or Wall
+
+
+
+=======
+SOUNDS
+=======
+Player Move UP 42743705
+EndLevel 4271703
+(StartLevel 92923508)
+
+
+
+================
+COLLISIONLAYERS
+================
+Background
+Exit, TryClimbMarker, CantClimbMarker
+LiftCheckMarker, LiftedMarker, TryDropMarker, FinishDropMarker
+FallingMarker
+Wall, Player, Box
+FaceLeftMarker, FaceRightMarker, FaceErrorMarker
+
+
+
+======
+RULES
+======
+
+(Delete this line to turn on silly jumping!)
+[UP Player] -> [Player]
+
+
+
+(----- BOX LIFT ACTION -----)
+
+(make the box stick with the player)
+LEFT [ LEFT Player LiftedMarker | NO Platform ] -> [ LEFT Player LEFT LiftedMarker | ]
+RIGHT [ RIGHT Player LiftedMarker | NO Platform ] -> [ RIGHT Player RIGHT LiftedMarker | ]
+DOWN [ DOWN Player LiftedMarker | NO Platform ] -> [ DOWN Player DOWN LiftedMarker | ]
+UP [ UP Player LiftedMarker | NO Wall ] -> [ UP Player UP LiftedMarker | ]
+
+(putting the box down)
+RIGHT [ | ACTION Player FaceLeftMarker LiftedMarker ] -> [ TryDropMarker | ACTION Player FaceLeftMarker LiftedMarker ]
+LEFT [ | ACTION Player FaceRightMarker LiftedMarker ] -> [ TryDropMarker | ACTION Player FaceRightMarker LiftedMarker ]
+DOWN [ Platform | TryDropMarker ] -> [ Platform | ]
+DOWN [ Exit | TryDropMarker ] -> [ Exit | ] (just in case)
+HORIZONTAL [ TryDropMarker | Player LiftedMarker ] -> [ TryDropMarker | Player ]
+DOWN [ | TryDropMarker ] -> [ FinishDropMarker | ]
+HORIZONTAL [ FinishDropMarker | Box LiftedMarker ] -> [ Box FallingMarker | ]
+
+(destroy the box every turn)
+[ Box LiftedMarker ] -> [ ]
+
+(picking the box up)
+LEFT [ ACTION Player FaceLeftMarker NO LiftedMarker | Box ] -> [ ACTION Player FaceLeftMarker | Box LiftCheckMarker ]
+RIGHT [ ACTION Player FaceRightMarker NO LiftedMarker | Box ] -> [ ACTION Player FaceRightMarker | Box LiftCheckMarker ]
+DOWN [ Platform | Box LiftCheckMarker ] -> [ Platform | Box ]
+HORIZONTAL [ ACTION Player | Box LiftCheckMarker ] -> [ ACTION Player LiftedMarker | ]
+
+(put the box on the player)
+late DOWN [ Wall | Player LiftedMarker ] -> cancel
+late DOWN [ NO Wall | Player LiftedMarker ] -> [ Box LiftedMarker | Player LiftedMarker ]
+
+
+
+
+(----- FACE MARKER MOVEMENT -----)
+
+[ Player NO FaceMarker ] -> [ Player FaceErrorMarker ] (message ERROR: Face tracking failure)
+[ > Player FaceMarker | NO Platform ] -> [ > Player > FaceMarker | ]
+
+
+
+(----- PLAYER CLIMBING MOVEMENT -----)
+
+(prevents players from climbing when there's a wall immediately above them)
+DOWN [ Wall | HORIZONTAL Player ] -> [ Wall | HORIZONTAL Player CantClimbMarker]
+DOWN [ Wall | | HORIZONTAL Player LiftedMarker ] -> [ Wall | | HORIZONTAL Player LiftedMarker CantClimbMarker]
+
+(handle climbing movements to the left while lifting)
+RIGHT [ Platform | LEFT Player FaceMarker LiftedMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceLeftMarker LiftedMarker | ]
+DOWN [ NO Platform | Platform TryClimbMarker FaceLeftMarker LiftedMarker ] -> [ Player FaceLeftMarker LiftedMarker | Platform ]
+RIGHT [ Platform TryClimbMarker FaceLeftMarker LiftedMarker | NO Platform ] -> [ Platform | Player FaceLeftMarker LiftedMarker ]
+
+(handle climbing movements to the left while not lifting)
+RIGHT [ Platform | LEFT Player FaceMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceLeftMarker | ]
+DOWN [ NO Platform | Platform TryClimbMarker FaceLeftMarker ] -> [ Player FaceLeftMarker | Platform ]
+RIGHT [ Platform TryClimbMarker FaceLeftMarker | NO Platform ] -> [ Platform | Player FaceLeftMarker ]
+
+(handle climbing movements to the right while lifting)
+LEFT [ Platform | RIGHT Player FaceMarker LiftedMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceRightMarker LiftedMarker | ]
+DOWN [ NO Platform | Platform TryClimbMarker FaceRightMarker LiftedMarker ] -> [ Player FaceRightMarker LiftedMarker | Platform ]
+LEFT [ Platform TryClimbMarker FaceRightMarker LiftedMarker | NO Platform ] -> [ Platform | Player FaceRightMarker LiftedMarker ]
+
+(handle climbing movements to the right while not lifting)
+LEFT [ Platform | RIGHT Player FaceMarker NO CantClimbMarker ] -> [ Platform TryClimbMarker FaceRightMarker | ]
+DOWN [ NO Platform | Platform TryClimbMarker FaceRightMarker ] -> [ Player FaceRightMarker | Platform ]
+LEFT [ Platform TryClimbMarker FaceRightMarker | NO Platform ] -> [ Platform | Player FaceRightMarker ]
+
+(destroys the marker that said the player couldn't climb)
+[ CantClimbMarker ] -> [ NO CantClimbMarker ]
+
+
+
+
+(----- GRAVITY -----)
+
+(handles gravity for horizontal movements)
+HORIZONTAL [ HORIZONTAL Player ] -> [ HORIZONTAL Player HORIZONTAL FallingMarker ]
+startloop
+late DOWN [ Box LiftedMarker | Player FaceMarker LiftedMarker FallingMarker | NO Platform ] -> [ | Box LiftedMarker | Player FaceMarker LiftedMarker FallingMarker ]
+late DOWN [ Player FaceMarker FallingMarker | NO Platform ] -> [ | Player FaceMarker FallingMarker ]
+late DOWN [ Box FallingMarker | NO Platform ] -> [ | Box FallingMarker ]
+endloop
+late [ FallingMarker ] -> [ NO FallingMarker ]
+
+(handle jumping gravity)
+DOWN [ UP Player | Platform ] -> again
+DOWN [ Player FaceMarker LiftedMarker | NO Platform ] -> [ NO Player | Player FaceMarker LiftedMarker ]
+DOWN [ Player FaceMarker | NO Platform ] -> [ NO Player | Player FaceMarker ]
+
+
+
+(----- FACE MARKER RESET -----)
+
+[ LEFT Player ] -> [ LEFT Player FaceLeftMarker ]
+[ RIGHT Player ] -> [ RIGHT Player FaceRightMarker ]
+late [ FaceMarker NO Player ] -> [ NO FaceMarker ]
+
+
+
+==============
+WINCONDITIONS
+==============
+Some Player on Exit
+
+
+
+=======
+LEVELS
+=======
+
+
+((level for testing stuff)
+
+#......................#
+#......................#
+#......................#
+#......................#
+#......................#
+#......................#
+#......................#
+#......................#
+#...#.......#..........#
+#E.#....#...##...OO..<.#
+########################
+)
+
+
+message Level 1
+
+#..................#
+#..................#
+#..................#
+#...#.......#......#
+#e..#...#.o.#.o.>..#
+####################
+
+
+message Level 2
+
+.#....##........##....
+.#................#...
+##.................#..
+#e..................#.
+##...................#
+.#...........#..o....#
+.#...........#o.oo<..#
+.#####...#############
+.....#..o#............
+.....#####............
+
+
+message Level 3
+
+.#.................
+.#...#############.
+#.#.#.............#
+#..#..............#
+#................o#
+#...............oo#
+#.###....<...#o.##.
+#.#.#....#..#####..
+#.#.#oo.##..#......
+#e#.######.##......
+###.##...###.......
+
+
+message Level 4
+
+..................#.....
+.................#.#....
+.......#........#...#...
+......#.#......#.....#..
+...###...#....#.......#.
+..#.......#..#.........#
+.#.........##..........#
+.#....................o#
+.#...................oo#
+.#...............<...###
+##....#..........#...#..
+#e....#.o........#####..
+#####.#.o...o..###......
+....#.#.o.#.#o.#........
+....#.##########........
+....###.................
+
+
+message Level 5
+
+.....###....#########.
+.####...####.........#
+#....................#
+#....................#
+#....................#
+#.....#..............#
+#.....#..............#
+#.....#oooo..........#
+#e...#######<........#
+##.###.....##.#.....o#
+.#.#........#.##...oo#
+.#.#........#.##..ooo#
+.###........#.########
+............###.......
+
+
+message Level 6
+
+.###.............####
+.#..#############...#
+##..................#
+#e..................#
+##..................#
+.#................oo#
+.#oo........#..o..###
+.#ooo.......#<ooo.#..
+.#oooo......#####.#..
+.#####....###...###..
+.....#...o#..........
+.....##.###..........
+......###............
+
+
+message Level 7
+
+..#...#####...##...###..
+.#.#.#.....#.#..#.#...#.
+.#..##......##...##....#
+.#...#.......#....#....#
+.#.....................#
+.#.....................#
+##.....................#
+#e...o...............###
+##...#.o.....#....##.#..
+.#...#.o....##.o.<####..
+.##..#.ooo..##.ooo#.....
+..#..######.#######.....
+..##.#....###...........
+...###..................
+
+
+message Level 8
+
+.###.......####...#######..
+#...#.....#....#.#.......#.
+#....#...#.....##.........#
+#o....###....#.#.....###..#
+#oo.........##......##.#..#
+####.......##..........#e.#
+...##............##....##.#
+..#....o.#......#..#......#
+..#....o#.#....#...#......#
+.#...###...#....#..#.....o#
+.#......#.#......##.....oo#
+#........#...........######
+#............o............#
+#....o......###..........o#
+#...###.................oo#
+#........o..........<..ooo#
+###########################
+
+
+message Level 9
+
+........###.........
+.......#...#........
+......#.....#..#####
+.....#.......##....#
+....#.....o........#
+...#......oo......o#
+..#.......###....oo#
+.#............<.####
+#.............o....#
+#e...........###...#
+##....##...#......o#
+.#....##o..##...####
+.#....#######..##...
+.###..#.....#.##....
+...#.##.....###.....
+...###..............
+
+
+message Level 10
+
+...#####################...
+.##...........#.........#..
+####o.......oo#o........##.
+#..##..#...#####...###.##.#
+#...#..##........###.###..#
+#...##..##oooo............#
+#e.......#######..........#
+##........#...###........##
+.#.....o...#.#..##........#
+.#.....#....#....##.......#
+.####..##.............#####
+...#####......<...........#
+...#..........#...........#
+...#.........##....########
+...#........##...........#.
+...#..........o.........o#.
+...#o....###########...oo#.
+...#oo..##.........##.ooo#.
+...######...........######.
+
+
+message Level 11
+
+#############################
+#..#...#....................#
+#.....o#oo............#####.#
+#o...###.o##.....o..##..e.#.#
+#oo....###...<..o.......#.#.#
+###..oo#.....#.o..........#.#
+#...####......#..###...###..#
+#o............#.#......#..o.#
+#oo.......###.#.#o....#..####
+####.o...###..#.##o..#.o.#..#
+#...........o.###..o#...#...#
+#...o.....oo.#...####.......#
+#....#########........#####.#
+#..............o...o##....#.#
+####...........o...#....oo#.#
+#o##...#....#..........####.#
+##o###.#....#...ooo.o.......#
+#o#o#o##....#........ooo....#
+#############################
