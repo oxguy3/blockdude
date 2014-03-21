@@ -8,6 +8,10 @@ Simply open index.html in any HTML5-compatible web browser and start playing! Us
 
 If you are on a mobile device, you can use the mobile.html file instead. It uses [this virtual pad](http://www.emanueleferonato.com/2013/11/27/add-a-virtual-pad-to-play-your-hml5-games-made-with-puzzlescript-on-mobile-devices/) to make the game playable without a keyboard.
 
+## License
+
+This project is licensed under the [GNU Public License version 3](https://gnu.org/licenses/gpl-3.0.txt). In a nutshell, the GPLv3 grants you the freedom to use, study, share, copy, and modify this software; however, any redistributed versions of the software must also be licensed under the GPLv3.
+
 ## Credits
 * [Stephen Lavelle](http://www.increpare.com/) created the fantastic PuzzleScript engine this game was made with.
 * Brandon Sterner, Dan Englender, and Jason Kovacs developed the original version of Block Dude.
