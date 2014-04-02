@@ -10,7 +10,7 @@ If you are on a mobile device, you can use the mobile.html file instead. It uses
 
 ## License
 
-This project is licensed under the [GNU Public License version 3](https://gnu.org/licenses/gpl-3.0.txt). In a nutshell, the GPLv3 grants you the freedom to use, study, share, copy, and modify this software; however, any redistributed versions of the software must also be licensed under the GPLv3.
+This project is free software and is released under the terms of the [GNU General Public License version 3](https://gnu.org/licenses/gpl-3.0.txt).
 
 ## Credits
 * [Stephen Lavelle](http://www.increpare.com/) created the fantastic PuzzleScript engine this game was made with.
